@@ -1,1 +1,0 @@
-import easyocr as ocr

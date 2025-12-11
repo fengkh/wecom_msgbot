@@ -9,6 +9,9 @@ import sys
 from datetime import datetime
 import threading
 from typing import Dict, Any
+import pyautogui
+from ui_controller import *
+from processer import *
 
 # 配置日志
 logging.basicConfig(
@@ -17,6 +20,28 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S'
 )
 logger = logging.getLogger("RabbitMQ-SSL")
+
+
+def init_component_location():
+    print('准备确认消息框位置')
+    time.sleep(2)
+    msg_area_x, msg_area_y = pyautogui.position()
+    print('准备确认发送按钮位置')
+    time.sleep(2)
+    send_button_x, send_button_y = pyautogui.position()
+    print('准备确认OCR左上位置')
+    time.sleep(2)
+    ocr_left_top_x, ocr_left_top_y = pyautogui.position()
+    print('准备确认OCR右下位置')
+    time.sleep(2)
+    ocr_right_bottom_x, ocr_right_bottom_y = pyautogui.position()
+    return {'msg_area_x': msg_area_x, 'msg_area_y': msg_area_y,
+            'send_button_x': send_button_x, 'send_button_y': send_button_y,
+            'ocr_left_top_x': ocr_left_top_x, 'ocr_left_top_y': ocr_left_top_y,
+            'ocr_right_bottom_x': ocr_right_bottom_x, 'ocr_right_bottom_y': ocr_right_bottom_y}
+
+
+components = init_component_location()
 
 
 class SSLRabbitMQConsumer:
@@ -484,7 +509,8 @@ def process_message(data: Dict[str, Any], properties) -> bool:
         # 业务逻辑示例
         if data.get('type') == 'wecom_msgbot':
             logger.info(f"收到竞拍通知，开始处理")
-            # mycode here
+            processer = Process()
+            processer.process(data, components)
             return True
 
         else:
